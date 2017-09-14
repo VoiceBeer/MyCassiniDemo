@@ -13,8 +13,8 @@ class ImageViewController: UIViewController {
     var imageURL: URL? {
         didSet {
             image = nil
-            if view.window != nil {
-                fetchImage()
+            if view.window != nil { // if we're on screen
+                fetchImage()        // then fetch image
             }
         }
     }
@@ -34,12 +34,6 @@ class ImageViewController: UIViewController {
         if image == nil {
             fetchImage()
         }
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-//        view.addSubview(imageView)
-        imageURL = DemoURL.Ningbo
     }
     
     @IBOutlet weak var scrollView: UIScrollView! {
