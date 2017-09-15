@@ -19,28 +19,37 @@ class ImageViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
+    
     private func fetchImage() {
         if let url = imageURL {
-            let urlContents = try? Data(contentsOf: url)
-            if let imageData = urlContents {
-                image = UIImage(data: imageData)
+            spinner.startAnimating()
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                let urlContents = try? Data(contentsOf: url)
+                if let imageData = urlContents, url == self?.imageURL {
+                    DispatchQueue.main.async {
+                        self?.image = UIImage(data: imageData)
+                    }
+                }
             }
-            
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if image == nil {
-            fetchImage()
+        if image == nil {   // we're about to appear on screen so, if needed,
+            fetchImage()    // fetch image
         }
     }
     
     @IBOutlet weak var scrollView: UIScrollView! {
         didSet {
+            // to zoom we have to handle viewForZooming(in scrollView:)
             scrollView.delegate = self
+            // and we must set our minimum and maximum zoom scale
             scrollView.maximumZoomScale = 3.0
             scrollView.minimumZoomScale = 1.0
+            // most important thing to set is UIScrollView is contentSize
             scrollView.contentSize = imageView.frame.size
             scrollView.addSubview(imageView)
         }
@@ -56,6 +65,7 @@ class ImageViewController: UIViewController {
             imageView.image = newValue
             imageView.sizeToFit()
             scrollView?.contentSize = imageView.frame.size
+            spinner?.stopAnimating()
         }
     }
 }
